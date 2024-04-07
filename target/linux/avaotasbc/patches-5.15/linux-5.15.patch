@@ -1,0 +1,49 @@
+--- a/Kconfig
++++ b/Kconfig
+@@ -9,6 +9,8 @@
+ 
+ source "init/Kconfig"
+ 
++source "bsp/Kconfig"
++
+ source "kernel/Kconfig.freezer"
+ 
+ source "fs/Kconfig.binfmt"
+ 
+--- a/Makefile
++++ b/Makefile
+@@ -516,6 +516,7 @@
+ 		-I$(objtree)/arch/$(SRCARCH)/include/generated \
+ 		$(if $(building_out_of_srctree),-I$(srctree)/include) \
+ 		-I$(objtree)/include \
++		-I$(srctree)/bsp/include \
+ 		$(USERINCLUDE)
+ 
+ KBUILD_AFLAGS   := -D__ASSEMBLY__ -fno-PIE
+@@ -676,6 +677,7 @@
+ drivers-$(CONFIG_SAMPLES) += samples/
+ drivers-$(CONFIG_NET) += net/
+ drivers-y	+= virt/
++drivers-y	+= bsp/drivers/
+ libs-y		:= lib/
+ endif # KBUILD_EXTMOD
+ 
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -219,7 +219,7 @@
+ 
+ ld_flags       = $(KBUILD_LDFLAGS) $(ldflags-y) $(LDFLAGS_$(@F))
+ 
+-DTC_INCLUDE    := $(srctree)/scripts/dtc/include-prefixes
++DTC_INCLUDE    := $(srctree)/scripts/dtc/include-prefixes $(srctree)/bsp/include
+ 
+ dtc_cpp_flags  = -Wp,-MMD,$(depfile).pre.tmp -nostdinc                    \
+ 		 $(addprefix -I,$(DTC_INCLUDE))                          \
+ 
+--- a/arch/arm64/boot/dts/allwinner/Makefile
++++ b/arch/arm64/boot/dts/allwinner/Makefile
+@@ -37,3 +37,4 @@
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h6-pine-h64.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h6-pine-h64-model-b.dtb
+ dtb-$(CONFIG_ARCH_SUNXI) += sun50i-h6-tanix-tx6.dtb
++dtb-$(CONFIG_ARCH_SUNXI) += sun55i-t527-avaota-a1.dtb

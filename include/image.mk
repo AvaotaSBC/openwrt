@@ -177,6 +177,10 @@ define Image/pad-root-squashfs
 	$(call Image/pad-to,$(KDIR)/root.squashfs,$(if $(1),$(1),$(ROOTFS_PARTSIZE)))
 endef
 
+ifeq ($(CONFIG_TARGET_avaotasbc),y)
+BSP_INCLUDE=-I$(LINUX_DIR)/bsp/include/
+endif
+
 # $(1) source dts file
 # $(2) target dtb file
 # $(3) extra CPP flags
@@ -188,7 +192,8 @@ define Image/BuildDTB/sub
 		-I$(DTS_DIR)/include \
 		-I$(LINUX_DIR)/include/ \
 		-undef -D__DTS__ $(3) \
-		-o $(2).tmp $(1)
+		-o $(2).tmp $(1) \
+		$(BSP_INCLUDE)
 	$(LINUX_DIR)/scripts/dtc/dtc -O dtb \
 		-i$(dir $(1)) $(4) \
 	$(if $(CONFIG_HAS_DT_OVERLAY_SUPPORT),-@) \
