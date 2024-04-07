@@ -1364,3 +1364,36 @@ define KernelPackage/mhi-pci-generic/description
 endef
 
 $(eval $(call KernelPackage,mhi-pci-generic))
+
+define KernelPackage/tft-st7789v
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=TFT-ST7789V
+  KCONFIG:=CONFIG_AVA_FB_TFT_ST7789V \
+           CONFIG_AVA_FB_TFT=y
+  FILES:=$(LINUX_DIR)/bsp/modules/fbtft/fb_st7789v.ko
+  AUTOLOAD:=$(call AutoProbe,fb_st7789v)
+endef
+
+define KernelPackage/tft-st7789v/description
+  Kernel module for the TFT-ST7789V.
+endef
+
+$(eval $(call KernelPackage,tft-st7789v))
+
+define KernelPackage/aw-nna
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=Allwinner NNA NPU
+  KCONFIG:=CONFIG_AW_NNA_GALCORE=m \
+           CONFIG_AW_NNA_VIP=m
+  FILES:=$(LINUX_DIR)/bsp/drivers/npu/aw_nna_galcore/galcore.ko \
+         $(LINUX_DIR)/bsp/drivers/npu/aw_nna_vip/vipcore.ko
+  AUTOLOAD:=$(call AutoProbe,galcore vipcore)
+endef
+
+define KernelPackage/aw-nna/description
+  Kernel module for the Allwinner NNA NPU.
+endef
+
+$(eval $(call KernelPackage,aw-nna))
+
+

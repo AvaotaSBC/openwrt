@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: GPL-2.0
+
+menu "Allwinner BSP"
+
+source "bsp/platform/Kconfig"
+source "bsp/platform/Kconfig.debug"
+source "bsp/drivers/Kconfig"
+
+# Avaota SBC Modules
+source "bsp/modules/Kconfig"
+
+endmenu
