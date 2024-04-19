@@ -21,7 +21,7 @@
 #include <linux/iopoll.h>
 
 #include "disp_al_de.h"
-#include "../sunxi_drm_crtc.h"
+#include "sunxi_drm_crtc.h"
 
 #define DISPLAY_NUM_MAX 4
 #define MY_BYTE_ALIGN(x) (((x + (4 * 1024 - 1)) >> 12) << 12)

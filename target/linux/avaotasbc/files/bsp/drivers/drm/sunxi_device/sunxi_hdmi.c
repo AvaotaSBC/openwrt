@@ -10,8 +10,17 @@
  ******************************************************************************/
 
 #include <linux/delay.h>
+#include <linux/version.h>
+
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 19, 0)
 #include <drm/drm_hdcp.h>
 #include <drm/drm_scdc_helper.h>
+#else
+#include <drm/display/drm_hdcp.h>
+#include <drm/display/drm_hdmi_helper.h>
+#include <drm/display/drm_scdc_helper.h>
+#endif
 
 #include "sunxi_hdmi.h"
 
@@ -80,7 +89,7 @@ u8 sunxi_hdmi_scdc_read(u8 addr)
 	u8 data = 0;
 	int ret = 0;
 
-	ret = drm_scdc_readb(sunxi_hdmi->i2c, addr, &data);
+	ret = drm_scdc_readb(sunxi_hdmi->connect->ddc, addr, &data);
 	if (ret != 0) {
 		hdmi_wrn("hdmi drm scdc byte read 0x%x failed\n", addr);
 		data = 0;
@@ -93,7 +102,7 @@ void sunxi_hdmi_scdc_write(u8 addr, u8 data)
 {
 	int ret = 0;
 
-	ret = drm_scdc_writeb(sunxi_hdmi->i2c, addr, data);
+	ret = drm_scdc_writeb(sunxi_hdmi->connect->ddc, addr, data);
 	if (ret != 0) {
 		hdmi_wrn("hdmi drm scdc byte write 0x%x = 0x%x failed\n", addr, data);
 	}
@@ -528,8 +537,13 @@ int sunxi_hdmi_disconfig(void)
 
 	/* 2. clear sink scdc info */
 	if (dw_phy_hot_plug_state() && dw_fc_video_get_scramble()) {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 19, 0)
 		drm_scdc_set_scrambling(sunxi_hdmi->i2c, 0x0);
 		drm_scdc_set_high_tmds_clock_ratio(sunxi_hdmi->i2c, 0x0);
+#else
+		drm_scdc_set_scrambling(sunxi_hdmi->connect, 0x0);
+		drm_scdc_set_high_tmds_clock_ratio(sunxi_hdmi->connect, 0x0);
+#endif
 	}
 
 	return 0;
@@ -626,6 +640,15 @@ int sunxi_hdmi_adap_bind(struct i2c_adapter *i2c_adap)
 
 	sunxi_hdmi->i2c = i2c_adap;
 	dw_i2cm_adap_bind(i2c_adap);
+	return 0;
+}
+
+int sunxi_hdmi_connect_creat(struct drm_connector *data)
+{
+	/* sunxi hdmi connect */
+	sunxi_hdmi->connect = data;
+	/* dw hdmi connect */
+	sunxi_hdmi->dw_hdmi.connect = data;
 	return 0;
 }
 

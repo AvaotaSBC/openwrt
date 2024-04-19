@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: GPL-2.0
+menuconfig AVA_FB_TFT
+	tristate "Support for onboard SPI TFT LCD display modules"
+	depends on FB && SPI
+	depends on GPIOLIB || COMPILE_TEST
+	select FB_SYS_FILLRECT
+	select FB_SYS_COPYAREA
+	select FB_SYS_IMAGEBLIT
+	select FB_SYS_FOPS
+	select FB_DEFERRED_IO
+	select FB_BACKLIGHT
+
+config AVA_FB_TFT_ST7789V
+	tristate "FB driver for the ST7789V LCD Controller"
+	depends on AVA_FB_TFT
+	depends on m
+	help
+	  This enables generic framebuffer support for the Sitronix ST7789V
+	  display controller. The controller is intended for small color
+	  displays with a resolution of up to 320x240 pixels.
+
+	  Say Y if you have such a display that utilizes this controller.

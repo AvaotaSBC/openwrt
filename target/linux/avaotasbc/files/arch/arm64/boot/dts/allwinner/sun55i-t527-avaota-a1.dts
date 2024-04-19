@@ -4,7 +4,7 @@
 
 /dts-v1/;
 
-#include "sun55iw3p1.dtsi"
+#include "sun55i-t527.dtsi"
 
 /{
 	model = "Avaota A1";
@@ -497,7 +497,7 @@
 };
 
 &dlcd0 {
-	status = "okay";
+	status = "disabled";
 	panel = <&rgb_panel0>;
 	ports {
 		tcon0_out: port@1 {
@@ -3526,5 +3526,22 @@ chn_cfg_mode     : Hardware DE channel allocation config. 0:single display with 
 			type = "critical";
 			hysteresis = <0>;
 		};
+	};
+};
+
+&pd1 {
+	/* pk */
+	pd1_vi@A523_PCK_VI {
+		ppu-always-on;
+	};
+
+	/* pd */
+	pd1_vo0@A523_PCK_VO0 {
+		ppu-always-on;
+	};
+
+	/* pj */
+	pd1_vo1@A523_PCK_VO1 {
+		ppu-always-on;
 	};
 };

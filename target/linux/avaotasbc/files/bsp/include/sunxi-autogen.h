@@ -1,1 +1,1 @@
-#define AW_BSP_VERSION "b6b861664c, 2024-03-06 09:22:31 +0800"
+#define AW_BSP_VERSION "https://github.com/AvaotaSBC/linux/"

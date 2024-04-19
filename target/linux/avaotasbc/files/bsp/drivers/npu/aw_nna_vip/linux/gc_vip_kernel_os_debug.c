@@ -464,9 +464,9 @@ static loff_t gckvip_core_loading_get(
     )
 {
     loff_t len = 0, offset = 0;
-    vip_uint32_t ratio = 0, i = 0;
-    vip_uint64_t total_time = 0, total_tmp = 0, total_time_ms = 0;
-    gckvip_profile_t profile_result = gckvip_debug_get_profile_data();
+    vip_uint32_t i = 0;
+    vip_uint64_t total_time = 0, cur_time = 0, total_time_ms = 0;
+
 #if vpmdUSE_DEBUG_FS
     struct seq_file *ptr = (struct seq_file*)m;
 #else
@@ -478,28 +478,48 @@ static loff_t gckvip_core_loading_get(
 	if (VIP_NULL == core_loading)
 		return 0;
 
+	cur_time = gckvip_os_get_time();
 	if (0 == core_loading[0].destory_time) {
-		total_time = gckvip_os_get_time() - core_loading[0].init_time;
-	} else {
-		total_time = core_loading[0].destory_time - core_loading[0].init_time;
-	}
-    total_time_ms = total_time;
-    do_div(total_time_ms, 1000);
+		total_time = cur_time - core_loading[0].init_time;
 
-	FS_PRINTF(ptr, len, offset, "VIP Total Time=%" PRId64" ms\n", total_time_ms);
+	} else {
+		core_loading[0].infer_time = 0;
+		core_loading[0].last_infer_time = 0;
+		core_loading[0].last_record_time = 0;
+	}
+	total_time_ms = total_time;
+	do_div(total_time_ms, 1000);
+
 	for (i = 0; i < debugfs_core_cnt; i++) {
+		/*
 		vip_uint64_t infer_ms = core_loading[i].infer_time;
 		vip_uint64_t ratio = core_loading[i].infer_time * 100;
 		do_div(infer_ms, 1000);
 		do_div(ratio, total_time);
 		if (0 == i) {
-			FS_PRINTF(ptr, len, offset, "History Loading -----> Core%d: Inference Time=%"PRId64" ms (%2d%%)\n",
+			FS_PRINTF(ptr, len, offset, "NPU Loading -----> Core%d: Inference Time=%"PRId64" ms (%2d%%)\n",
 					i, infer_ms, ratio);
 		} else {
 			FS_PRINTF(ptr, len, offset, "                       Core%d: Inference Time=%"PRId64" ms (%2d%%)\n",
 					i, infer_ms, ratio);
+		}*/
+		vip_uint64_t step_infer = core_loading[i].infer_time - core_loading[0].last_infer_time; /*us*/
+		vip_uint64_t step_total_us = cur_time - core_loading[0].last_record_time;
+		vip_uint64_t ratio = step_infer * 100;
+		do_div(step_infer, 1000);
+		do_div(ratio, step_total_us);
+		if (0 == i) {
+			FS_PRINTF(ptr, len, offset, "NPU Loading -----> Core%d: %2d%%\n",
+					i, ratio, step_infer);
+		} else {
+			FS_PRINTF(ptr, len, offset, "                   Core%d: %2d%%\n",
+					i, ratio);
 		}
 	}
+
+	core_loading[0].last_record_time = cur_time;
+	core_loading[0].last_infer_time = core_loading[0].infer_time;
+
 
 #if !vpmdUSE_DEBUG_FS
 flush_buffer:
@@ -519,13 +539,14 @@ static ssize_t gckvip_core_loading_set(
 
     ret  = strncmp(buf, "reset", 5);
 
-
     if (!ret) {
 	    for (i = 0; i < debugfs_core_cnt; i++) {
 		    core_loading[i].init_time = gckvip_os_get_time();
 		    core_loading[i].submit_time = 0;
 		    core_loading[i].infer_time = 0;
 		    core_loading[i].destory_time = 0;
+		    core_loading[i].last_record_time = core_loading[i].init_time;
+		    core_loading[i].last_infer_time = 0;
 	    }
     } else {
 	    PRINTK_E("invalid param, please set reset string to reset core loading data.\n");
@@ -2750,22 +2771,6 @@ vip_status_e  gckvip_debug_create_fs(void)
 #else
     status = gckvip_debug_create_sysfs();
 #endif
-    return status;
-}
-
-vip_status_e  gckvip_debug_destroy_fs(void)
-{
-    vip_status_e status = VIP_SUCCESS;
-#if vpmdUSE_DEBUG_FS
-    status = gckvip_debug_destroy_debugfs();
-#else
-    status = gckvip_debug_destroy_sysfs();
-#endif
-
-    if (core_loading != VIP_NULL) {
-	    gckvip_os_free_memory((void *)core_loading);
-	    core_loading = VIP_NULL;
-    }
 
     return status;
 }
@@ -2783,6 +2788,8 @@ vip_status_e gckvip_debug_profile_start(void)
 	    core_loading[i].destory_time = 0;
 	    core_loading[i].submit_time = 0;
 	    core_loading[i].infer_time = 0;
+	    core_loading[i].last_record_time = time;
+	    core_loading[i].last_infer_time = 0;
     }
 
     return status;
@@ -2798,6 +2805,23 @@ vip_status_e gckvip_debug_profile_end(void)
 
     for (i = 0; i < debugfs_core_cnt; i++) {
 	    core_loading[i].destory_time = time;
+    }
+
+	return status;
+ }
+
+vip_status_e  gckvip_debug_destroy_fs(void)
+{
+    vip_status_e status = VIP_SUCCESS;
+#if vpmdUSE_DEBUG_FS
+    status = gckvip_debug_destroy_debugfs();
+#else
+    status = gckvip_debug_destroy_sysfs();
+#endif
+
+    if (core_loading != VIP_NULL) {
+	    gckvip_os_free_memory((void *)core_loading);
+	    core_loading = VIP_NULL;
     }
 
     return status;

@@ -13,7 +13,7 @@
 #define _SUNXI_DE_H_
 
 #include "include.h"
-#include "../sunxi_drm_crtc.h"
+#include "sunxi_drm_crtc.h"
 
 //not visable for user
 struct sunxi_de_out;

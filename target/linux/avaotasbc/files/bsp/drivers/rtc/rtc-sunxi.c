@@ -35,7 +35,8 @@
 #include <linux/reboot.h>
 #include <linux/version.h>
 #include "rtc-sunxi.h"
-#if LINUX_VERSION_CODE > KERNEL_VERSION(5, 10, 149)
+#if (IS_ENABLED(CONFIG_AW_KERNEL_AOSP) && (LINUX_VERSION_CODE > KERNEL_VERSION(5, 10, 149))) || \
+	(IS_ENABLED(CONFIG_AW_KERNEL_ORIGIN) && (LINUX_VERSION_CODE > KERNEL_VERSION(5, 15, 0)))
 #include <linux/panic_notifier.h>
 #endif
 

@@ -22,6 +22,8 @@
 #include <linux/types.h>
 #include <virt-dma.h>
 #include "sunxi-dma.h"
+
+#define SUNXI_DMA_MODULE_VERSION	"1.0.12"
 /*
  * Common registers
  */
@@ -1937,7 +1939,8 @@ static int sun6i_dma_probe(struct platform_device *pdev)
 		writel(DMA_IRQ_MCU_DISABLE_MASK, sdc->base + DMA_IRQ_MCU_EN_REG);
 	}
 
-	dev_info(&pdev->dev, "sunxi dma probed\n");
+	dev_info(&pdev->dev, "sunxi dma probed, driver version: %s\n",
+			SUNXI_DMA_MODULE_VERSION);
 
 	return 0;
 
@@ -2006,4 +2009,4 @@ MODULE_DESCRIPTION("Allwinner A31 DMA Controller Driver");
 MODULE_AUTHOR("Sugar <shuge@allwinnertech.com>");
 MODULE_AUTHOR("Maxime Ripard <maxime.ripard@free-electrons.com>");
 MODULE_LICENSE("GPL");
-MODULE_VERSION("1.0.11");
+MODULE_VERSION(SUNXI_DMA_MODULE_VERSION);

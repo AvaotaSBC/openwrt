@@ -12,7 +12,7 @@
  */
 
 #include "snd_sunxi_adapter.h"
-#include "../platform/snd_sunxi_log.h"
+#include "snd_sunxi_log.h"
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 struct snd_soc_dai *sunxi_adpt_rtd_cpu_dai(struct snd_soc_pcm_runtime *rtd)

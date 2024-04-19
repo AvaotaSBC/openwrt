@@ -609,6 +609,7 @@ struct dw_phy_ops_s {
  * @short Main structures to instantiate the driver
  */
 struct dw_hdmi_dev_s {
+	struct drm_connector      *connect;
 	struct device    *dev;
 	uintptr_t        addr;
 
@@ -775,6 +776,15 @@ void dw_write_mask(u32 addr, u8 mask, u8 data);
 	do {                                              \
 		if (dw_dev_check_loglevel(DW_LOG_INDEX_CEC))   \
 			DRM_INFO("sunxi-hdmi: [cec]: "fmt, ##args);     \
+	} while (0)
+
+#ifdef phy_log
+#undef phy_log
+#endif
+#define phy_log(fmt, args...) \
+	do {                                              \
+		if (dw_dev_check_loglevel(DW_LOG_INDEX_PHY))   \
+			DRM_INFO("sunxi-hdmi: [phy]: "fmt, ##args);     \
 	} while (0)
 
 #ifdef hdcp_log

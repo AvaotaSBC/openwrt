@@ -36,6 +36,8 @@
 #include "pcie-sunxi-dma.h"
 #include "pcie-sunxi.h"
 
+#define SUNXI_PCIE_MODULE_VERSION	"1.0.8"
+
 void sunxi_pcie_writel(u32 val, struct sunxi_pcie *pcie, u32 offset)
 {
 	writel(val, pcie->app_base + offset);
@@ -391,7 +393,7 @@ static int sunxi_pcie_plat_enable_power(struct sunxi_pcie *pci)
 	int ret = 0;
 
 	if (IS_ERR_OR_NULL(pci->pcie3v3))
-		return ret;
+		return 1;
 
 	ret = regulator_set_voltage(pci->pcie3v3, 3300000, 3300000);
 	if (ret)
@@ -400,6 +402,17 @@ static int sunxi_pcie_plat_enable_power(struct sunxi_pcie *pci)
 	ret = regulator_enable(pci->pcie3v3);
 	if (ret)
 		dev_err(dev, "failed to enable pcie3v3 regulator\n");
+
+	if (IS_ERR_OR_NULL(pci->pcie1v8))
+		return 1;
+
+	ret = regulator_set_voltage(pci->pcie1v8, 1800000, 1800000);
+	if (ret)
+		dev_warn(dev, "failed to set regulator voltage\n");
+
+	ret = regulator_enable(pci->pcie1v8);
+	if (ret)
+		dev_err(dev, "failed to enable pcie1v8 regulator\n");
 
 	return ret;
 }
@@ -414,6 +427,13 @@ static int sunxi_pcie_plat_disable_power(struct sunxi_pcie *pci)
 	ret = regulator_disable(pci->pcie3v3);
 	if (ret)
 		dev_err(pci->dev, "fail to disable pcie3v3 regulator\n");
+
+	if (IS_ERR_OR_NULL(pci->pcie1v8))
+		return ret;
+
+	ret = regulator_disable(pci->pcie1v8);
+	if (ret)
+		dev_err(pci->dev, "fail to disable pcie1v8 regulator\n");
 
 	return ret;
 }
@@ -829,6 +849,10 @@ static int sunxi_pcie_plat_parse_dts_res(struct platform_device *pdev, struct su
 	if (IS_ERR(pci->pcie3v3))
 		dev_warn(&pdev->dev, "no pcie3v3 regulator found\n");
 
+	pci->pcie1v8 = devm_regulator_get_optional(&pdev->dev, "pcie1v8");
+	if (IS_ERR(pci->pcie1v8))
+		dev_warn(&pdev->dev, "no pcie1v8 regulator found\n");
+
 	ret = of_property_read_u32(np, "num-lanes", &pci->lanes);
 	if (ret) {
 		dev_err(&pdev->dev, "Failed to parse the number of lanes\n");
@@ -952,6 +976,8 @@ static int sunxi_pcie_plat_probe(struct platform_device *pdev)
 	if (ret)
 		goto err3;
 
+	dev_info(&pdev->dev, "driver version: %s\n", SUNXI_PCIE_MODULE_VERSION);
+
 	return 0;
 
 err3:
@@ -1072,5 +1098,5 @@ module_platform_driver(sunxi_pcie_plat_driver);
 
 MODULE_AUTHOR("songjundong <songjundong@allwinnertech.com>");
 MODULE_DESCRIPTION("Allwinner PCIe controller platform driver");
-MODULE_VERSION("1.0.7");
+MODULE_VERSION(SUNXI_PCIE_MODULE_VERSION);
 MODULE_LICENSE("GPL v2");

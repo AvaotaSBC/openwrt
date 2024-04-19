@@ -91,7 +91,7 @@ TRACE_EVENT(sunxi_gmac_rx_desc,
 
 /* This must be outside ifdef _SUNXI_GMAC_TRACE_H */
 #undef TRACE_INCLUDE_PATH
-#define TRACE_INCLUDE_PATH ../../bsp/drivers/gmac
+#define TRACE_INCLUDE_PATH .
 #undef TRACE_INCLUDE_FILE
 #define TRACE_INCLUDE_FILE sunxi-gmac-trace
 #include <trace/define_trace.h>

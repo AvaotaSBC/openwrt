@@ -16,8 +16,8 @@
 #include <sound/soc.h>
 #include <sound/dmaengine_pcm.h>
 
-#include "../platform/snd_sunxi_log.h"
-#include "../platform/snd_sunxi_pcm.h"
+#include "snd_sunxi_log.h"
+#include "snd_sunxi_pcm.h"
 
 #define SUNXI_DMAENGINE_PCM_DRV_NAME	"sunxi_dmaengine_pcm"
 

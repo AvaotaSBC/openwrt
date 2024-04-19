@@ -19,7 +19,6 @@ source "bsp/drivers/mbus/Kconfig"
 
 # Storage
 source "bsp/drivers/mmc/Kconfig"
-source "bsp/modules/nand/Kconfig"
 source "bsp/drivers/mtd/Kconfig"
 source "bsp/drivers/redeposit/Kconfig"
 

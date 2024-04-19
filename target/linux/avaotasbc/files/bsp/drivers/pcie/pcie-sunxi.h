@@ -296,6 +296,7 @@ struct sunxi_pcie {
 	const struct sunxi_pcie_of_data *drvdata;
 	struct gpio_desc	*rst_gpio;
 	u32			lanes;
+	struct regulator	*pcie1v8;
 	struct regulator	*pcie3v3;
 };
 

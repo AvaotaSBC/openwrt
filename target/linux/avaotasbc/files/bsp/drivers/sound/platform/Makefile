@@ -5,6 +5,7 @@
 # Copyright(c) 2022-2027 Allwinnertech Co., Ltd.
 
 ccflags-y += -I $(srctree)/bsp/drivers/sound/adapter
+ccflags-y += -I $(srctree)/bsp/drivers/sound/platform
 ADPT_DIR := ../adapter
 
 snd_soc_sunxi_component_sfx-objs		+= snd_sunxi_sfx.o

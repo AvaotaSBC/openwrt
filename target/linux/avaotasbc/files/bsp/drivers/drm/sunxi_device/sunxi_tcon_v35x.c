@@ -21,9 +21,9 @@
 #include "sunxi_tcon.h"
 #include "sunxi_tcon_top.h"
 #include "tcon_feat.h"
-#include "../sunxi_drm_lcd.h"
-#include "../sunxi_drm_hdmi.h"
-#include "../sunxi_drm_edp.h"
+#include "sunxi_drm_lcd.h"
+#include "sunxi_drm_hdmi.h"
+#include "sunxi_drm_edp.h"
 
 struct tcon_data {
 	enum tcon_type type;

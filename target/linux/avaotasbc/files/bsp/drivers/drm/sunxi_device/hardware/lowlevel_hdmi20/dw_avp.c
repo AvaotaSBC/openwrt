@@ -9,7 +9,14 @@
  * warranty of any kind, whether express or implied.
  ******************************************************************************/
 #include <linux/delay.h>
+#include <linux/version.h>
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 19, 0)
 #include <drm/drm_scdc_helper.h>
+#else
+#include <drm/display/drm_hdmi_helper.h>
+#include <drm/display/drm_scdc_helper.h>
+#endif
 
 #include "dw_mc.h"
 #include "dw_fc.h"
@@ -119,31 +126,25 @@ static struct dw_video_s *dw_get_video(void)
 int dw_video_timing_print(void)
 {
 	struct dw_video_s *video = dw_get_video();
-	char buf[256];
-	int n = 0;
 
 	if (!video) {
 		hdmi_err("check point video is null\n");
-		goto ret_failed;
+		return -1;
 	}
 
-	n += sprintf(buf + n, "[video timing]\n");
-	n += sprintf(buf + n, " - pixel clock: %dKHz, repeat: %d, %s, ratio: %dx%d\n",
+	hdmi_inf("[timing info]\n");
+	hdmi_inf(" - pixel clock: %dKHz, repeat: %d, %s, ratio: %dx%d\n",
 		video->mDtd.mPixelClock, video->mDtd.mPixelRepetitionInput,
-		video->mDtd.mInterlaced ? "Interlaced" : "Progressive",
+		video->mDtd.mInterlaced ? "interlaced" : "progressive",
 		video->mDtd.mHImageSize, video->mDtd.mVImageSize);
-	n += sprintf(buf + n, " - hactive: %d, hblank: %d, hfront: %d, hsync: %d, hpol: %d\n",
+	hdmi_inf(" - hactive: %d, hblank: %d, hfront: %d, hsync: %d, hpol: %d\n",
 		video->mDtd.mHActive, video->mDtd.mHBlanking, video->mDtd.mHSyncOffset,
 		video->mDtd.mHSyncPulseWidth, video->mDtd.mHSyncPolarity);
-	n += sprintf(buf + n, " - vactive: %d, vblank: %d, vfront: %d, vsync: %d, vpol: %d\n",
+	hdmi_inf(" - vactive: %d, vblank: %d, vfront: %d, vsync: %d, vpol: %d\n",
 		video->mDtd.mVActive, video->mDtd.mVBlanking, video->mDtd.mVSyncOffset,
 		video->mDtd.mVSyncPulseWidth, video->mDtd.mVSyncPolarity);
 
-	printk(KERN_CONT "%s\n", buf);
-
 	return 0;
-ret_failed:
-	return -1;
 }
 
 int dw_video_dtd_filling(dw_dtd_t *dtd, u32 rate)
@@ -1461,10 +1462,17 @@ int dw_avp_config(void)
 			hdmi_err("sink unsupport config scramble and 1/40 ratio\n");
 			return -1;
 		}
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 19, 0)
 		/* scdc set enable scramble */
 		drm_scdc_set_scrambling(hdmi->i2cm_dev.adapter, 0x1);
 		/* scdc set tmds clock ratio 1/40 */
 		drm_scdc_set_high_tmds_clock_ratio(hdmi->i2cm_dev.adapter, 0x1);
+#else
+		/* scdc set enable scramble */
+		drm_scdc_set_scrambling(hdmi->connect, 0x1);
+		/* scdc set tmds clock ratio 1/40 */
+		drm_scdc_set_high_tmds_clock_ratio(hdmi->connect, 0x1);
+#endif
 		/* tmds software reset */
 		dw_mc_reset_tmds_clock(0x1);
 		/* enable scramble */
@@ -1475,10 +1483,17 @@ int dw_avp_config(void)
 		dw_fc_video_set_scramble(0x0);
 		/* tmds software reset */
 		dw_mc_reset_tmds_clock(0x1);
-		/* scdc set disable scramble */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 19, 0)
+		/* scdc set enable scramble */
 		drm_scdc_set_scrambling(hdmi->i2cm_dev.adapter, 0x0);
-		/* scdc set tmds clock ratio 1/10 */
+		/* scdc set tmds clock ratio 1/40 */
 		drm_scdc_set_high_tmds_clock_ratio(hdmi->i2cm_dev.adapter, 0x0);
+#else
+		/* scdc set disable scramble */
+		drm_scdc_set_scrambling(hdmi->connect, 0x0);
+		/* scdc set tmds clock ratio 1/10 */
+		drm_scdc_set_high_tmds_clock_ratio(hdmi->connect, 0x0);
+#endif
 		dw_fc_video_set_hdcp_keepout(0x0);
 	}
 

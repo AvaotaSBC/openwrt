@@ -3664,7 +3664,7 @@ static int __init sunxi_gmac_set_mac_addr(char *str)
  * parsing the mac address becomes a problem.
  * Maybe use this way: mac0_addr=, mac1_addr=
  */
-__setup("mac_addr=", sunxi_gmac_set_mac_addr);
+__setup("mac0_addr=", sunxi_gmac_set_mac_addr);
 #endif /* MODULE */
 
 MODULE_DESCRIPTION("Allwinner GMAC driver");

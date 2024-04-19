@@ -1036,7 +1036,7 @@ struct __de_lcd_dev_t {
 };
 
 s32 tcon_cmap(u32 sel, u32 mode, unsigned int lcd_cmap_tbl[2][3][4]);
-s32 tcon_gamma(u32 sel, u32 mode, u32 gamma_tbl[256]);
+s32 tcon_gamma(u32 sel, u32 mode, u32 *gamma_tbl);
 s32 tcon_ceu(u32 sel, u32 mode, s32 b, s32 c, s32 s, s32 h);
 s32 tcon0_frm(u32 sel, u32 mode);
 

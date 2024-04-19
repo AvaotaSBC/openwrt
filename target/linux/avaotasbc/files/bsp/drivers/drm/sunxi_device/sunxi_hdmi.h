@@ -209,6 +209,7 @@ struct sunxi_hdmi_s {
     struct platform_device    *pdev;
 
 	struct disp_device_config disp_info;
+	struct drm_connector      *connect;
 
     int   blacklist_index;
 
@@ -388,6 +389,7 @@ struct disp_device_config *sunxi_hdmi_video_get_info(void);
 
 int sunxi_hdmi_video_set_info(struct disp_device_config *config);
 int sunxi_hdmi_adap_bind(struct i2c_adapter *i2c_adap);
+int sunxi_hdmi_connect_creat(struct drm_connector *data);
 /**
  * @desc: sunxi hdmi core dump. point different hw
  * @buf: save dump info buffer

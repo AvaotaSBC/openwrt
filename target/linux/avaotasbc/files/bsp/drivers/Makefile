@@ -108,4 +108,3 @@ obj-y += fs/
 
 #awlink
 obj-y += awlink/
-

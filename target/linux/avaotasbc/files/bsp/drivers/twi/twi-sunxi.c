@@ -57,7 +57,7 @@
 #include <linux/rpbuf.h>
 #endif /* CONFIG_AW_TWI_DELAYINIT */
 
-#define SUNXI_TWI_VERSION	"2.6.8"
+#define SUNXI_TWI_VERSION	"2.6.9"
 
 /* TWI Register Offset */
 /* 31:8bit reserved,7-1bit for slave addr,0 bit for GCE */
@@ -397,6 +397,19 @@ enum SUNXI_TWI_XFER_STATUS {
 	SUNXI_TWI_XFER_STATUS_SLAVE_ERROR,
 #endif
 };
+
+static char const *twi_status[] = {
+	"idle",
+	"running",
+	"shutdown",
+	"complete"
+#if IS_ENABLED(CONFIG_I2C_SLAVE)
+	, "slave_idle",
+	"slave_saddr",
+	"slave_wdata",
+	"slave_rdata"
+#endif
+	};
 
 struct sunxi_twi_dma {
 	struct dma_chan *chan;
@@ -2298,11 +2311,11 @@ sunxi_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
 		return -EINVAL;
 	}
 
-	/* Set twi to RUNNING state when it is not in SHUTDOWN state */
+	/* Set twi to RUNNING state when it is in IDLE state */
 	spin_lock_irqsave(&twi->lock, flags);
-	if (twi->status == SUNXI_TWI_XFER_STATUS_SHUTDOWN) {
+	if (twi->status == SUNXI_TWI_XFER_STATUS_SHUTDOWN || twi->status == SUNXI_TWI_XFER_STATUS_RUNNING) {
 		spin_unlock_irqrestore(&twi->lock, flags);
-		sunxi_err(twi->dev, "twi bus is shutdown and shouldn't be working anymore\n");
+		sunxi_err(twi->dev, "twi bus is %s and shouldn't be working anymore\n", twi_status[twi->status]);
 		return -EBUSY;
 	} else {
 		twi->status = SUNXI_TWI_XFER_STATUS_RUNNING;
@@ -2832,7 +2845,7 @@ static ssize_t sunxi_twi_status_show(struct device *dev,
 
 	return scnprintf(buf, PAGE_SIZE,
 			"twi->bus_num = %d\n"
-			"twi->status  = [%d]\n"
+			"twi->status  = [%d] %s\n"
 			"twi->msg_num   = %u, ->msg_idx = %u, ->buf_idx = %u\n"
 			"twi->bus_freq  = %u\n"
 			"twi->irq       = %d\n"
@@ -2843,7 +2856,7 @@ static ssize_t sunxi_twi_status_show(struct device *dev,
 			"[STAT]  0x%02x = 0x%08x, [CCR]  0x%02x = 0x%08x\n"
 			"[SRST] 0x%02x = 0x%08x, [EFR]   0x%02x = 0x%08x\n"
 			"[LCR]  0x%02x = 0x%08x\n",
-			twi->bus_num, twi->status,
+			twi->bus_num, twi->status,  twi_status[twi->status],
 			twi->msg_num, twi->msg_idx, twi->buf_idx,
 			twi->bus_freq, twi->irq, twi->debug_state,
 			twi->base_addr,
@@ -3295,6 +3308,7 @@ static int sunxi_twi_resume_noirq(struct device *dev)
 {
 	struct sunxi_twi *twi = dev_get_drvdata(dev);
 	int ret = 0;
+	unsigned long flags;
 
 	/*
 	 * cpus		+ normal standby	: the twi used by pmu dont close it regulator
@@ -3308,10 +3322,16 @@ static int sunxi_twi_resume_noirq(struct device *dev)
 	 * during wake-up.
 	 */
 	if (twi->no_suspend) {
-		sunxi_info(twi->dev, "resume noirq\n");
-		sunxi_twi_adap_lock_bus(&twi->adap, I2C_LOCK_SEGMENT);
+		spin_lock_irqsave(&twi->lock, flags);
+		twi->status = SUNXI_TWI_XFER_STATUS_RUNNING;
+		spin_unlock_irqrestore(&twi->lock, flags);
+
+		sunxi_info(twi->dev, "new resume noirq\n");
 		ret = sunxi_twi_hw_init(twi);
-		sunxi_twi_adap_unlock_bus(&twi->adap, I2C_LOCK_SEGMENT);
+
+		spin_lock_irqsave(&twi->lock, flags);
+		twi->status = SUNXI_TWI_XFER_STATUS_IDLE;
+		spin_unlock_irqrestore(&twi->lock, flags);
 	}
 
 	return ret;

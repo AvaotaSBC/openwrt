@@ -7,6 +7,10 @@ config AW_DRM
 	depends on DRM && AW_BSP
 	select DRM_KMS_HELPER
 	select DRM_KMS_CMA_HELPER
+	select DRM_KMS_DMA_HELPER
+	select DRM_GEM_DMA_HELPER
+	select DRM_DISPLAY_HELPER
+	select VIDEOMODE_HELPERS
 	default n
 
 config AW_DRM_DE
@@ -30,6 +34,13 @@ config AW_DRM_TCON_TOP
 	help
 		If you want use TCON TOP, select it.
 
+config AW_DRM_FBDEV_BOOTLOGO
+	bool "Support Bootlogo Output from uboot"
+	depends on AW_DRM_LCD
+	default n
+	help
+		If you want bootlogo output for drm driver, select it.
+
 menuconfig AW_DRM_LCD
 	bool "Support LCD Output"
 	depends on AW_DRM
@@ -45,13 +56,6 @@ config AW_DRM_LCD_DSI
 	help
 		If you want lcd-dsi output for drm driver, select it.
 
-config AW_DRM_FBDEV_BOOTLOGO
-	bool "Support Bootlogo Output from uboot"
-	depends on AW_DRM_LCD
-	default n
-	help
-		If you want bootlogo output for drm driver, select it.
-
 config AW_DRM_LCD_DSI_COMBO_PHY
 	bool "Support LCD-DSI COMBO PHY"
 	depends on AW_DRM_LCD_DSI
@@ -62,6 +66,8 @@ config AW_DRM_LCD_DSI_COMBO_PHY
 menuconfig AW_DRM_HDMI_TX
 	tristate "Support Hdmi Output"
 	depends on AW_DRM
+	select DRM_DISPLAY_HDCP_HELPER
+	select DRM_DISPLAY_HDMI_HELPER
 	default y
 	help
 		If you want hdmi output for drm driver, select it.

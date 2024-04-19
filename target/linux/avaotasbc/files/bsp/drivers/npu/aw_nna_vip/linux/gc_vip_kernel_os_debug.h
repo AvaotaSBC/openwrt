@@ -53,6 +53,7 @@
 *****************************************************************************/
 #ifndef _GC_VIP_DEBUG_FS_H
 #define _GC_VIP_DEBUG_FS_H
+
 #include "gc_vip_common.h"
 
 #if vpmdENABLE_DEBUGFS
@@ -70,11 +71,11 @@ typedef struct _gckvip_mem_mapping_profile_t {
 } gckvip_mem_mapping_profile_t;
 
 typedef struct _gckvip_profile_t {
-    vip_uint64_t init_time; /* the hardwarae init time */
+    vip_uint64_t init_time; /* the hardware init time */
     vip_uint64_t submit_time; /* the network submit time */
     vip_uint64_t wait_time; /* the end time for network run */
 
-    vip_uint64_t total_time; /* the total time for hardwarae work  */
+    vip_uint64_t total_time; /* the total time for hardware work  */
     vip_uint64_t infer_time; /* the total time for network inference */
 
     vip_uint32_t video_memory; /* the current video memory  */
@@ -84,11 +85,14 @@ typedef struct _gckvip_profile_t {
 } gckvip_profile_t;
 
 typedef struct _gckvip_core_loading_profile_t {
-    vip_uint64_t init_time; /* the hardwarae init time */
-    vip_uint64_t destory_time; /* the hardwarae end time */
+    vip_uint64_t init_time; /* the hardware init time */
+    vip_uint64_t destory_time; /* the hardware end time */
     vip_uint64_t submit_time; /* the network submit time */
 
     vip_uint64_t infer_time; /* the total time for network inference */
+
+    vip_uint64_t last_record_time; /* the last record time */
+    vip_uint64_t last_infer_time; /* the last record infer time */
 } gckvip_core_loading_profile_t;
 
 typedef enum _gckvip_profile_data_type_t {

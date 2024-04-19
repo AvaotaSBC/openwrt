@@ -431,8 +431,8 @@ static __u32 is_peripheral_active(void)
 #define  big_req(req, ep)	((req->req.length != req->req.actual) \
 				? ((req->req.length >= 512) \
 				&& ((req->req.length - req->req.actual) \
-				> ep->ep.maxpacket)) \
-				: (req->req.length > ep->ep.maxpacket))
+				>= ep->ep.maxpacket)) \
+				: (req->req.length >= ep->ep.maxpacket))
 #define  is_sunxi_udc_dma_capable(req, ep)	(is_udc_support_dma() \
 						&& big_req(req, ep) \
 						&& ep->num \

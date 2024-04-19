@@ -3,6 +3,7 @@ mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 mkfile_dir := $(dir $(mkfile_path))
 
 ccflags-y += -I$(mkfile_dir)/sunxi_device/hardware
+ccflags-y += -I$(mkfile_dir)/
 
 # Although now only support v35x, new platform support should not add new dir
 ccflags-y += -I$(mkfile_dir)/sunxi_device/hardware/lowlevel_v35x/tcon
