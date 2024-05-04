@@ -47,3 +47,20 @@ make4.1+ perl python3.6+ rsync subversion unzip which
 ## License
 
 OpenWrt is licensed under GPL-2.0
+
+## Download
+
+https://github.com/AvaotaSBC/openwrt/releases
+
+## Avaota-A1 Network Info
+
+```
+    WAN   LAN
+     ^     ^
+     |     |
+   +----++----+  +-+ +-+  +----+  +--+
++--|eth0||eth1|--| |-| |--|USB3|--|PD|--+
+|                                       |
+|                                       |
+|               Avaota-A1               |
+```
