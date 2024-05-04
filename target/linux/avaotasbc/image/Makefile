@@ -22,6 +22,7 @@ define Build/syterkit-img
 	mcopy -i $@.boot -s extlinux ::/
 	mcopy -i $@.boot bl31.bin ::bl31.bin
 	mcopy -i $@.boot scp.bin ::scp.bin
+	mcopy -i $@.boot splash.bin ::splash.bin
 	./gen_sunxi_sdcard_img.sh $@ \
 		$@.boot \
 		$(IMAGE_ROOTFS) \
