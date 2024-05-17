@@ -15,7 +15,7 @@ define Build/syterkit-img
 	# combining boot partition, root partition as well as the u-boot bootloader
 
 	rm -f $@.boot
-	mkfs.fat $@.boot -C $(FAT32_BLOCKS)
+	mkfs.fat $@.boot -n boot -C $(FAT32_BLOCKS)
 
 	mcopy -i $@.boot $(DTS_DIR)/$(DEVICE_DTS).dtb ::sunxi.dtb
 	mcopy -i $@.boot $(IMAGE_KERNEL) ::kernel.img
