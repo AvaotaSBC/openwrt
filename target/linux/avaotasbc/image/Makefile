@@ -16,19 +16,21 @@ define Build/syterkit-img
 
 	rm -f $@.boot
 	mkfs.fat $@.boot -C $(FAT32_BLOCKS)
+	
+	rm -f uImage
+	mkimage -A arm -O linux -T kernel -C none -a "0x41000000" -e "0x41000000" -n "Linux kernel" -d $(IMAGE_KERNEL) uImage
 
 	mcopy -i $@.boot $(DTS_DIR)/$(DEVICE_DTS).dtb ::sunxi.dtb
-	mcopy -i $@.boot $(IMAGE_KERNEL) ::kernel.img
+	mcopy -i $@.boot uImage ::kernel.img
 	mcopy -i $@.boot -s extlinux ::/
-	mcopy -i $@.boot bl31.bin ::bl31.bin
-	mcopy -i $@.boot scp.bin ::scp.bin
-	mcopy -i $@.boot splash.bin ::splash.bin
 	./gen_sdcard_image.sh $@ \
 		$@.boot \
 		$(IMAGE_ROOTFS) \
 		$(CONFIG_TARGET_KERNEL_PARTSIZE) \
 		$(CONFIG_TARGET_ROOTFS_PARTSIZE) \
-		syterkit/$(SYTERKIT_DEV)_extlinux_boot_bin_card.bin
+		sunxi-uboot/boot0_sdcard.fex \
+		sunxi-uboot/boot_package.fex \
+		36864
 	rm -f $@.boot
 
 endef
